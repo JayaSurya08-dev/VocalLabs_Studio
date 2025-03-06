@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+
+<body
+    style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #573ccf; margin: 0; font-family: Arial, sans-serif;">
+    <div
+        style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 350px; text-align: center;">
+        <h2 style="margin-bottom: 1rem; color: #333;">Sign Up</h2>
+
+        <form id="signupForm">
+            <div
+                style="display: flex; align-items: center; background: #f0f0f0; border-radius: 5px; padding: 10px; margin-bottom: 1rem;">
+                <i class="fa fa-user" style="margin-right: 10px; color: #666;"></i>
+                <input type="text" id="username" name="username" placeholder="Username" required
+                    style="width: 100%; border: none; background: transparent; outline: none; font-size: 1rem;">
+            </div>
+
+            <div
+                style="display: flex; align-items: center; background: #f0f0f0; border-radius: 5px; padding: 10px; margin-bottom: 1rem;">
+                <i class="fa fa-envelope" style="margin-right: 10px; color: #666;"></i>
+                <input type="email" id="email" name="email" placeholder="Email Address" required
+                    style="width: 100%; border: none; background: transparent; outline: none; font-size: 1rem;">
+            </div>
+
+            <div
+                style="display: flex; align-items: center; background: #f0f0f0; border-radius: 5px; padding: 10px; margin-bottom: 1rem; position: relative;">
+                <i class="fa fa-lock" style="margin-right: 10px; color: #666;"></i>
+                <input type="password" id="password" name="password" placeholder="Password" required
+                    style="width: 100%; border: none; background: transparent; outline: none; font-size: 1rem;">
+                <i class="fa fa-eye" id="togglePassword"
+                    style="cursor: pointer; position: absolute; right: 10px; color: #666;"></i>
+            </div>
+
+            <div
+                style="display: flex; align-items: center; background: #f0f0f0; border-radius: 5px; padding: 10px; margin-bottom: 1rem; position: relative;">
+                <i class="fa fa-lock" style="margin-right: 10px; color: #666;"></i>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password"
+                    required
+                    style="width: 100%; border: none; background: transparent; outline: none; font-size: 1rem;">
+                <i class="fa fa-eye" id="toggleConfirmPassword"
+                    style="cursor: pointer; position: absolute; right: 10px; color: #666;"></i>
+            </div>
+
+            <p id="error-message" style="color: red; font-size: 0.9rem; display: none;"></p>
+
+            <button type="submit"
+                style="width: 100%; padding: 10px; background: #573ccf; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; transition: 0.3s;">Sign
+                Up</button>
+
+            <p style="margin-top: 1rem; font-size: 0.9rem;">Already have an account? <a href="{{url_for('login')}}"
+                    style="color: #007BFF; text-decoration: none;">Login</a></p>
+        </form>
+    </div>
+
+    <script type="module">
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("signupForm").addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const username = document.getElementById("username").value.trim();
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
+                const errorMessage = document.getElementById("error-message");
+
+                if (!username || !email || !password || !confirmPassword) {
+                    errorMessage.innerText = "All fields are required!";
+                    errorMessage.style.display = "block";
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    errorMessage.innerText = "Passwords do not match!";
+                    errorMessage.style.display = "block";
+                    return;
+                }
+
+                try {
+                    const response = await fetch("/signup", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ username, email, password }),
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) {
+                        errorMessage.innerText = typeof data.error === "string" ? data.error : "Signup failed";
+                        errorMessage.style.display = "block";
+                        return;
+                    }
+
+                    alert("Signup successful! Please log in to continue.");
+                    window.location.href = "/login";
+                } catch (error) {
+                    errorMessage.innerText = error.message;
+                    errorMessage.style.display = "block";
+                }
+            });
+
+            function togglePasswordVisibility(inputId, iconId) {
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(iconId);
+
+                icon.onclick = function () {
+                    if (input.type === "password") {
+                        input.type = "text";
+                        icon.classList.replace("fa-eye", "fa-eye-slash");
+                    } else {
+                        input.type = "password";
+                        icon.classList.replace("fa-eye-slash", "fa-eye");
+                    }
+                };
+            }
+
+            togglePasswordVisibility("password", "togglePassword");
+            togglePasswordVisibility("confirmPassword", "toggleConfirmPassword");
+        });
+    </script>
+</body>
+
+</html>

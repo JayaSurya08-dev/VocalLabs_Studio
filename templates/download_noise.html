@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noise Reduction Download</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='download_noise.css') }}">
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Noise Reduction Download</h1>
+
+        <!-- Waveform Preview -->
+        <div id="waveform"></div>
+        <button id="playPause">▶ Play</button>
+
+        <!-- Noise Reduction Slider -->
+        <div class="noise-control">
+            <label for="noiseLevel">Noise Reduction Level:</label>
+            <input type="range" id="noiseLevel" min="0" max="1" step="0.1" value="0.5">
+            <button id="applyNoiseReduction">Apply Changes</button>
+        </div>
+
+        <!-- Download Button -->
+        <a id="downloadBtn" href="#" download>⬇ Download Cleaned Audio</a>
+
+        <!-- Upload Another File -->
+        <button onclick="window.location.href=`{{ url_for('noise_reducer_page') }}`;">
+            Upload Another File
+        </button>
+    </div>
+
+    <script>
+        // Initialize Wavesurfer for waveform preview
+        var wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: 'lightgray',
+            progressColor: 'cyan',
+            barWidth: 3,
+            responsive: true
+        });
+
+        // Load initial audio
+        wavesurfer.load("{{ url_for('download_noise_file', filename=processed_file) }}");
+
+        document.getElementById('playPause').addEventListener('click', function() {
+            wavesurfer.playPause();
+            this.textContent = wavesurfer.isPlaying() ? '⏸ Pause' : '▶ Play';
+        });
+
+        document.getElementById('applyNoiseReduction').addEventListener('click', function() {
+            var noiseLevel = document.getElementById('noiseLevel').value;
+            // Send request to server to apply noise reduction with selected level
+            fetch('/apply-noise-reduction', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    noiseLevel: noiseLevel,
+                    filename: "{{ processed_file }}"
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update waveform with newly processed audio
+                wavesurfer.load(data.processedUrl);
+                document.getElementById('downloadBtn').href = data.downloadUrl;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+
+</html>

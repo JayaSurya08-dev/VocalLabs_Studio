@@ -1,0 +1,9 @@
+
+# Ignore IDE/Editor specific files
+.vscode/
+*.swp
+*.swo
+
+# Ignore logs and temp files
+*.log
+*.tmp

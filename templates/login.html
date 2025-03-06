@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+
+<body
+    style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #573ccf; margin: 0; font-family: Arial, sans-serif;">
+    <div
+        style="background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); width: 350px; text-align: center;">
+        <h2 style="margin-bottom: 1rem; color: #333;">Login</h2>
+        <form id="loginForm">
+            <div
+                style="display: flex; align-items: center; background: #f0f0f0; border-radius: 5px; padding: 10px; margin-bottom: 1rem;">
+                <i class="fa fa-envelope" style="margin-right: 10px; color: #666;"></i>
+                <input type="email" id="email" name="email" placeholder="Email Address" required
+                    style="width: 100%; border: none; background: transparent; outline: none; font-size: 1rem;">
+            </div>
+            <div
+                style="display: flex; align-items: center; background: #f0f0f0; border-radius: 5px; padding: 10px; margin-bottom: 1rem; position: relative;">
+                <i class="fa fa-lock" style="margin-right: 10px; color: #666;"></i>
+                <input type="password" id="password" name="password" placeholder="Password" required
+                    style="width: 100%; border: none; background: transparent; outline: none; font-size: 1rem;">
+                <i class="fa fa-eye" id="togglePassword"
+                    style="position: absolute; right: 15px; cursor: pointer; color: #666;"></i>
+            </div>
+            <p id="error-message" style="color: red; font-size: 0.9rem; display: none;"></p>
+            <div style="text-align: right; margin-bottom: 1rem;">
+                <a href="#" id="forgotPassword" style="color: #007BFF; text-decoration: none; font-size: 0.9rem;">Forgot
+                    Password?</a>
+            </div>
+            <button type="submit"
+                style="width: 100%; padding: 10px; background: #573ccf; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1rem; transition: 0.3s;">Login</button>
+            <div style="margin: 1rem 0; color: #666; font-size: 0.9rem;">OR</div>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">Don't have an account? <a href="/signup"
+                    style="color: #007BFF; text-decoration: none;">Sign Up</a>
+            </p>
+        </form>
+    </div>
+    <script type="module">
+        document.getElementById("loginForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorMessage = document.getElementById("error-message");
+            errorMessage.innerText = "";
+            errorMessage.style.display = "none";
+            try {
+                const response = await fetch("http://127.0.0.1:5000/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    throw new Error("Invalid server response. Please try again.");
+                }
+                if (!response.ok) {
+                    throw new Error(data.error || "Login failed. Please check your credentials.");
+                }
+                // Store user data and token
+                localStorage.setItem("idToken", data.idToken);
+                localStorage.setItem("user", JSON.stringify(data.user));  // Store user info
+                alert("Login successful! Click OK to continue.");
+                // Redirect to the homepage
+                window.location.href = "/";
+            } catch (error) {
+                errorMessage.innerText = error.message;
+                errorMessage.style.display = "block";
+                alert(error.message);
+            }
+        });
+
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+        togglePassword.addEventListener("click", () => {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePassword.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                togglePassword.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        });
+
+        document.getElementById("forgotPassword").addEventListener("click", async () => {
+            const email = prompt("Enter your email to reset your password:");
+            if (email) {
+                try {
+                    const response = await fetch("http://127.0.0.1:5000/forgot-password", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error || "Failed to send reset email.");
+                    }
+                    alert("Password reset email sent! Check your inbox.");
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+        });
+
+        // Function to check login status on page load
+        function checkLoginStatus() {
+            const user = localStorage.getItem("user");
+            if (user) {
+                // Redirect or update UI
+                window.location.href = "/";
+            }
+        }
+        checkLoginStatus();
+    </script>
+</body>
+
+</html>

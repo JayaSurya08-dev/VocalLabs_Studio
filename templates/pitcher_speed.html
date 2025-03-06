@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitch and Speed Changer</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='noise_reducer.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+
+<body>
+    <!-- Sidebar Menu -->
+    <div id="sidebar" class="sidebar">
+        <button class="close-btn" onclick="closeSidebar()">✖</button>
+        <a href="{{ url_for('home') }}">Vocal Remover</a>
+        <a href="{{url_for('splitter')}}">Splitter</a>
+        <a href="{{url_for('noise_reducer')}}">Noise Reducer</a>
+        <a href="{{url_for('pitcher')}}">Pitcher</a>
+    </div>
+
+    <!-- Open Sidebar Button -->
+    <button class="open-btn" onclick="openSidebar()">☳</button>
+    <nav class="nav">
+        <a class="head" href="#how-it-works" id="scroll-link">HOW IT WORKS</a>
+    </nav>
+
+    <!-- Auth Buttons Container -->
+    <div class="auth-buttons" id="auth-container"></div>
+
+    <!-- Logo -->
+    <div class="logo">
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo">
+        </a>
+    </div>
+
+    <h1>Pitch and Speed Changer</h1>
+
+    <div class="intro">
+        <p>Adjust the pitch and speed of your audio files easily</p>
+    </div>
+
+    <div class="home_img">
+        <img src="{{ url_for('static', filename='pitcher1.png') }}" alt="Vocal Remover Home Image"
+            style="margin-top: 18px; padding:auto; height:35%; width:35%;">
+    </div>
+
+    <div class="upload" id="upload-section" style="display: none;">
+        <form action="/pitch-speed" method="POST" enctype="multipart/form-data">
+            <p id="file-name">No file selected</p>
+            <input type="file" id="file" name="audio" accept="audio/*" required onchange="updateFileName()">
+            <label for="file" class="custom-file-upload">Browse my Files</label>
+            <br>
+            <button id="upload_button" class="button-85" type="submit">Upload</button>
+        </form>
+    </div>
+
+    <!-- Processing Animation -->
+    <div id="processing" class="processing">
+        <div class="spinner"></div>
+        <p>Processing... Please wait</p>
+    </div>
+
+    <div id="login-warning"
+        style="display: none; color: rgb(249, 246, 246); text-align: center; font-size: 18px; margin-top: 60px;">
+        Please log in to upload files.
+    </div>
+
+    <!-- How It Works Section -->
+    <div id="how-it-works">
+        <div class="howItWorks">
+            <h2 id="remove">How It Works</h2>
+            <div id="desc">
+                <p id="p1">Upload an audio file and adjust its pitch and speed using AI-powered processing.<br></p>
+                <div class="step">
+                    <h3>1. Upload Your Song</h3>
+                    <p>Select an audio file (MP3, WAV, etc.) from your device.</p>
+                </div>
+                <div class="step">
+                    <h3>2. Adjust Pitch & Speed</h3>
+                    <p>Use our tools to tweak the pitch and speed of the track.</p>
+                </div>
+                <div class="step">
+                    <h3>3. Download Your Files</h3>
+                    <p>Download the modified audio file and enjoy!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function checkAuthStatus() {
+                const authContainer = document.getElementById("auth-container");
+                const userData = localStorage.getItem("user");
+                const uploadSection = document.getElementById("upload-section");
+                const loginWarning = document.getElementById("login-warning");
+
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    uploadSection.style.display = "block";
+                    loginWarning.style.display = "none";
+
+                    authContainer.innerHTML = `
+        <div class="user-menu">
+            <img src="/static/user2.png" alt="User" class="user-logo" id="user-icon">
+            <div class="dropdown-menu" id="dropdown-menu">
+                <div class="user-info">
+                    <p id="user-name">${user.username}</p>
+                    <p id="user-email">${user.email}</p>
+                </div>
+                <a href="/dashboard">Dashboard</a>
+                <button href="/logout" id="logout-btn">Logout</button>
+            </div>
+        </div>
+    `;
+
+                    setTimeout(() => {
+                        const userIcon = document.getElementById("user-icon");
+                        const dropdownMenu = document.getElementById("dropdown-menu");
+                        const logoutBtn = document.getElementById("logout-btn");
+
+                        if (userIcon && dropdownMenu && logoutBtn) {
+                            userIcon.addEventListener("click", function (event) {
+                                dropdownMenu.classList.toggle("active");
+                                event.stopPropagation();
+                            });
+
+                            document.addEventListener("click", function (event) {
+                                if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                                    dropdownMenu.classList.remove("active");
+                                }
+                            });
+
+                            logoutBtn.addEventListener("click", function () {
+                                localStorage.removeItem("user");
+                                location.reload();
+                            });
+                        }
+                    }, 100);
+                } else {
+                    uploadSection.style.display = "none";
+                    loginWarning.style.display = "block";
+                    authContainer.innerHTML = `
+        <a href="{{ url_for('login_page') }}">Login</a>
+        <a href="{{ url_for('signup_page') }}">Sign Up</a>
+    `;
+                }
+            }
+
+            checkAuthStatus();
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            function updateFileName() {
+                const fileInput = document.getElementById("file");
+                const fileNameDisplay = document.getElementById("file-name");
+
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    if (!['audio/mpeg', 'audio/wav'].includes(file.type)) {
+                        alert('Only MP3 and WAV files are supported.');
+                        fileInput.value = ''; // Reset file input
+                    } else {
+                        fileNameDisplay.textContent = file.name;
+                    }
+                } else {
+                    fileNameDisplay.textContent = "No file selected";
+                }
+            }
+            window.updateFileName = updateFileName;
+
+        });
+
+        document.getElementById("upload-section").addEventListener("submit", function (event) {
+            const fileInput = document.getElementById('file');
+            if (fileInput.files.length === 0) {
+                event.preventDefault();
+                alert("Please select a file before uploading.");
+                return;
+            }
+
+            document.getElementById("processing").style.display = "block";
+        });
+
+        // Open Sidebar
+        function openSidebar() {
+            document.getElementById("sidebar").style.left = "0";
+        }
+
+        // Close Sidebar
+        function closeSidebar() {
+            document.getElementById("sidebar").style.left = "-250px";
+        }
+
+        // Close Sidebar When Clicking Outside
+        document.addEventListener("click", function (event) {
+            const sidebar = document.getElementById("sidebar");
+            const openBtn = document.querySelector('.open-btn');
+
+            if (!sidebar.contains(event.target) && event.target !== openBtn) {
+                closeSidebar();
+            }
+        });
+
+        window.addEventListener("storage", function (event) {
+            if (event.key === "user") {
+                checkAuthStatus(); // Re-check auth status when localStorage changes
+            }
+        });
+    </script>
+
+</body>
+
+</html>

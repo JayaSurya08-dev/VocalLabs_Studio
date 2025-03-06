@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocal Remover</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+
+<body>
+    <!-- Sidebar Menu -->
+    <div id="sidebar" class="sidebar">
+        <button class="close-btn" onclick="closeSidebar()">✖</button>
+        <a href="{{ url_for('home') }}">Vocal Remover</a>
+        <a href="{{url_for('splitter')}}">Splitter</a>
+        <a href="{{url_for('noise_reducer')}}">Noise Reducer</a>
+        <a href="{{url_for('pitcher')}}">Pitcher</a>
+    </div>
+
+    <!-- Open Sidebar Button -->
+    <button class="open-btn" onclick="openSidebar()">☳</button>
+
+    <!-- Logo -->
+    <div class="logo">
+        <a href="{{ url_for('home') }}">
+            <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo">
+        </a>
+    </div>
+
+    <!-- Auth Buttons Container -->
+    <div class="auth-buttons" id="auth-container"></div>
+
+    <nav class="nav">
+        <a class="head" href="#how-it-works" id="scroll-link">HOW IT WORKS</a>
+    </nav>
+
+    <!-- Processing Animation -->
+    <div id="processing" class="processing" style="display: none;">
+        <div class="spinner"></div>
+        <p>Processing... Please wait.</p>
+    </div>
+
+    <h1>Vocal Remover and Isolation</h1>
+
+    <div class="intro">
+        <p>Separate voice from music out of a song for free with the help of Spleeter</p>
+    </div>
+
+    <div class="home_img">
+        <img src="{{ url_for('static', filename='home_page.png') }}" alt="Vocal Remover Home Image">
+    </div>
+
+    <div class="upload" id="upload-section" style="display: none;">
+        <form id="upload-form" action="/upload" method="POST" enctype="multipart/form-data">
+            <p id="file-name">No file selected</p>
+            <label for="file" class="custom-file-upload">
+                <i class="fa fa-cloud-upload" aria-hidden="true"></i> Browse my Files
+            </label>
+            <input type="file" id="file" name="file" accept="audio/*" required onchange="updateFileName()">
+            <br>
+            <input id="upload_button" class="button-85" type="submit" value="Upload">
+        </form>
+    </div>
+
+    <div id="login-warning"
+        style="display: none; color: rgb(249, 246, 246); text-align: center; font-size: 18px; margin-top: 60px;">
+        Please log in to upload files.
+    </div>
+
+    <!-- How It Works Section -->
+    <div id="how-it-works">
+        <div class="howItWorks">
+            <h2 id="remove">How It Works</h2>
+            <div id="desc">
+                <p id="p1">This free online application will help you reduce background noise from your audio files, improving sound quality.
+                    <br>Processing usually takes about 1 second.<br>
+                </p>
+                <div class="step">
+                    <h3>1. Upload Your Audio </h3>
+                    <p>Select an audio file (MP3, WAV, etc.) from your device.</p>
+                </div>
+                <div class="step">
+                    <h3>2. AI Processing</h3>
+                    <p>Our AI will analyze the audio and separate the songs into different parts.</p>
+                </div>
+                <div class="step">
+                    <h3>3. Download Your Files</h3>
+                    <p>Once processing is complete, download both the instrumental and acapella versions.</p>
+                </div>
+                <div class="step">
+                    <h3>4. Enjoy & Use</h3>
+                    <p>Use the instrumental for karaoke or the acapella for remixing and other creative projects.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            function checkAuthStatus() {
+                const authContainer = document.getElementById("auth-container");
+                const userData = localStorage.getItem("user");
+                const uploadSection = document.getElementById("upload-section");
+                const loginWarning = document.getElementById("login-warning");
+
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    uploadSection.style.display = "block";
+                    loginWarning.style.display = "none";
+
+                    authContainer.innerHTML = `
+        <div class="user-menu">
+            <img src="/static/user2.png" alt="User" class="user-logo" id="user-icon">
+            <div class="dropdown-menu" id="dropdown-menu">
+                <div class="user-info">
+                    <p id="user-name">${user.username}</p>
+                    <p id="user-email">${user.email}</p>
+                </div>
+                <a href="/dashboard">Dashboard</a>
+                <button href="/logout" id="logout-btn">Logout</button>
+            </div>
+        </div>
+    `;
+
+                    setTimeout(() => {
+                        const userIcon = document.getElementById("user-icon");
+                        const dropdownMenu = document.getElementById("dropdown-menu");
+                        const logoutBtn = document.getElementById("logout-btn");
+
+                        if (userIcon && dropdownMenu && logoutBtn) {
+                            userIcon.addEventListener("click", function (event) {
+                                dropdownMenu.classList.toggle("active");
+                                event.stopPropagation();
+                            });
+
+                            document.addEventListener("click", function (event) {
+                                if (!userIcon.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                                    dropdownMenu.classList.remove("active");
+                                }
+                            });
+
+                            logoutBtn.addEventListener("click", function () {
+                                localStorage.removeItem("user");
+                                location.reload();
+                            });
+                        }
+                    }, 100);
+                } else {
+                    uploadSection.style.display = "none";
+                    loginWarning.style.display = "block";
+                    authContainer.innerHTML = `
+        <a href="{{ url_for('login_page') }}">Login</a>
+        <a href="{{ url_for('signup_page') }}">Sign Up</a>
+    `;
+                }
+            }
+
+            checkAuthStatus();
+        });
+
+        document.getElementById("upload-section").addEventListener("submit", function (event) {
+            const fileInput = document.getElementById('file');
+            if (fileInput.files.length === 0) {
+                event.preventDefault();
+                alert("Please select a file before uploading.");
+                return;
+            }
+
+            document.getElementById("processing").style.display = "block";
+        });
+
+        function openSidebar() {
+            document.getElementById("sidebar").style.left = "0";
+        }
+
+        function closeSidebar() {
+            document.getElementById("sidebar").style.left = "-250px";
+        }
+
+        document.querySelector(".open-btn").addEventListener("click", openSidebar);
+        document.querySelector(".close-btn").addEventListener("click", closeSidebar);
+
+        window.addEventListener("click", function (event) {
+            const sidebar = document.getElementById("sidebar");
+            if (
+                sidebar.style.left === "0px" &&
+                !sidebar.contains(event.target) &&
+                !event.target.closest(".open-btn")
+            ) {
+                closeSidebar();
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            function updateFileName() {
+                const fileInput = document.getElementById("file");
+                const fileNameDisplay = document.getElementById("file-name");
+
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    if (!['audio/mpeg', 'audio/wav'].includes(file.type)) {
+                        alert('Only MP3 and WAV files are supported.');
+                        fileInput.value = ''; // Reset file input
+                    } else {
+                        fileNameDisplay.textContent = file.name;
+                    }
+                } else {
+                    fileNameDisplay.textContent = "No file selected";
+                }
+            }
+            window.updateFileName = updateFileName;
+
+        });
+
+        window.addEventListener("storage", function (event) {
+            if (event.key === "user") {
+                checkAuthStatus(); // Re-check auth status when localStorage changes
+            }
+        });
+    </script>
+
+</body>
+
+</html>

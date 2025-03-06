@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Preview</title>
+    <script src="https://unpkg.com/tone@next/build/Tone.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        .waveform-container {
+            width: 100%;
+            height: 120px;
+            background: #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        input[type="range"] {
+            width: 70%;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            background: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .playback-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #applyChangesButton,
+        #downloadButton {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Preview Audio</h2>
+
+        <!-- Waveform Preview -->
+        <div class="waveform-container" id="waveformPreview"></div>
+
+        <div class="controls">
+            <!-- Speed Control -->
+            <div class="slider-container">
+                <label for="speedControl">Speed:</label>
+                <input type="range" id="speedControl" min="0.5" max="2" step="0.1" value="1">
+            </div>
+
+            <!-- Pitch Control -->
+            <div class="slider-container">
+                <label for="pitchControl">Pitch:</label>
+                <input type="range" id="pitchControl" min="-12" max="12" step="1" value="0">
+            </div>
+        </div>
+
+        <!-- Playback Buttons -->
+        <div class="playback-buttons">
+            <button id="playButton">Play</button>
+            <button id="pauseButton">Pause</button>
+        </div>
+
+        <!-- Apply Changes and Download -->
+        <button id="applyChangesButton">Apply Changes</button>
+        <p id="processingText" style="display: none; color: red;">Processing...</p>
+        <button id="downloadButton" style="display: none;">Download Processed Audio</button>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            await Tone.start(); // Ensure Tone.js is properly started
+
+            const speedControl = document.getElementById("speedControl");
+            const pitchControl = document.getElementById("pitchControl");
+            const playButton = document.getElementById("playButton");
+            const pauseButton = document.getElementById("pauseButton");
+            const applyChangesButton = document.getElementById("applyChangesButton");
+            const downloadButton = document.getElementById("downloadButton");
+
+            let isPlaying = false;
+            let processedFileURL = null;
+
+            // Initialize WaveSurfer (ONLY FOR VISUALIZATION)
+            const wavesurfer = WaveSurfer.create({
+                container: '#waveformPreview',
+                waveColor: '#007BFF',
+                progressColor: '#0056b3',
+                cursorColor: '#000',
+                barWidth: 3,
+                responsive: true,
+                height: 100,
+                backend: 'WebAudio',
+                interact: false // Prevent users from clicking to play
+            });
+
+            // Load the uploaded file into WaveSurfer (MUTED)
+            const audioFile = "{{ url_for('uploaded_file', filename=filename) }}";
+            wavesurfer.load(audioFile);
+            wavesurfer.setVolume(0); // Ensure WaveSurfer doesn’t play sound
+
+            // Create Tone.js Player for actual audio playback
+            let player = new Tone.Player({
+                url: audioFile,
+                autostart: false,
+                loop: false
+            });
+
+            // Create PitchShift effect
+            const pitchShift = new Tone.PitchShift();
+            player.connect(pitchShift);
+            pitchShift.toDestination();
+
+            // Ensure the audio is loaded before playing
+            wavesurfer.on('ready', function () {
+                console.log("Audio is ready.");
+            });
+
+            // Speed Control
+            speedControl.addEventListener("input", function () {
+                let speed = parseFloat(this.value);
+                player.playbackRate = speed; // Adjust speed in real-time
+            });
+
+            // Pitch Control
+            pitchControl.addEventListener("input", function () {
+                let pitchValue = parseFloat(this.value);
+                pitchShift.pitch = pitchValue; // Apply pitch shift
+            });
+
+            // Play Button (Ensures NO DOUBLE AUDIO)
+            playButton.addEventListener("click", async () => {
+                if (!isPlaying) {
+                    player.stop();  // STOP any previous playback to prevent overlap
+                    player.start(); // Play only using Tone.js
+                    wavesurfer.seekTo(0); // Reset visualization to start
+                    wavesurfer.play(); // Play waveform animation only
+                    isPlaying = true;
+                }
+            });
+
+            // Pause Button
+            pauseButton.addEventListener("click", () => {
+                player.stop(); // Stop Tone.js playback
+                wavesurfer.pause(); // Pause waveform animation
+                isPlaying = false;
+            });
+
+            // Apply Changes and Send to Backend
+            applyChangesButton.addEventListener("click", async function () {
+                const pitch = pitchControl.value;
+                const speed = speedControl.value;
+                processingText.style.display = "block"; // Show "Processing..." text
+
+                fetch("/apply_changes", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ filename: "{{ filename }}", pitch: pitch, speed: speed })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        processingText.style.display = "none"; // Hide "Processing..." text
+                        if (data.download_url) {
+                            processedFileURL = data.download_url;
+                            downloadButton.style.display = "block";
+                        }
+                    })
+                    .catch(error => {
+                        processingText.style.display = "none"; // Hide "Processing..." text in case of an error
+                        console.error("Error applying changes:", error);
+                    });
+            });
+
+            downloadButton.addEventListener("click", function () {
+                if (processedFileURL) {
+                    const link = document.createElement("a");
+                    link.href = processedFileURL;
+                    link.download = processedFileURL.split("/").pop(); // Extract filename from URL
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            });
+
+
+            // Ensure player stops when audio ends
+            player.onstop = () => {
+                wavesurfer.stop();
+                isPlaying = false;
+            };
+        });
+    </script>
+
+</body>
+
+</html>

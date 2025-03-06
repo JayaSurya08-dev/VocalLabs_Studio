@@ -1,0 +1,492 @@
+/* General Variables for Consistency */
+:root {
+    --main-bg-color: #17171e;
+    --main-text-color: rgba(255, 255, 255, 0.905);
+    --accent-color: rgb(89, 63, 219);
+    --box-shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* General Styles */
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+}
+
+* {
+    box-sizing: border-box; /* Ensures padding/margin don't overflow */
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
+    font-family: sans-serif;
+    text-align: center;
+}
+
+/* Navigation Bar */
+.nav {
+    margin-top: 155px;
+    text-align: center;
+}
+
+.nav .head {
+    position: relative; /* Needed for ::before positioning */
+    color: var(--main-text-color);
+    text-decoration: none;
+    font-size: 0.9vw;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+    padding: 15px;
+    display: inline-block;
+}
+
+.nav .head::before {
+    content: "";
+    width: 0;
+    height: 3px; /* Thinner line looks better */
+    background: rgb(69, 85, 224);
+    position: absolute;
+    top: 100%;
+    left: 50%; /* Start at the center */
+    transition: width 0.5s ease, left 0.5s ease;
+    transform: translateX(-50%); /* Centering effect */
+}
+
+.nav .head:hover::before {
+    width: 100%; /* Expands fully */
+}
+
+/* User Icon */
+.user-logo {
+    margin-top: 0px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.user-logo:hover {
+    transform: scale(1.1);
+}
+
+.user-menu {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 65px;
+    right: 20px;
+    background: rgba(32, 31, 49, 0.95);
+    border-radius: 8px;
+    border: 1px solid #ffffff;
+    padding: 20px;
+    min-width: 150px;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    text-align: left; /* Ensure left alignment for content */
+}
+
+/* Dropdown Menu Active State */
+.dropdown-menu.active {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* User Info Container */
+.user-info {
+    margin-bottom: 10px; /* Space between user info and links */
+}
+
+#user-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #7552f4;
+    margin-left: 0; /* Reset any existing margin */
+    display: block; /* Ensure it takes full width */
+    margin-bottom: 7px;
+}
+
+#user-email {
+    font-size: 17px;
+    color: #ffffff;
+    font-weight: 500;
+    margin-left: 0; /* Reset any existing margin */
+    display: block; /* Ensure it takes full width */
+}
+
+/* Dropdown Items */
+.dropdown-menu a,
+.dropdown-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    margin-left: 0; /* Reset any existing margin */
+    color: #fff; /* Changed to white for better visibility */
+    text-decoration: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none; /* Removed border for cleaner look */
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+    text-align: left; /* Align text to the left */
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu button:hover {
+    background-color: #fd0202;
+}
+
+
+/* Styling for the Logout Button */
+.dropdown-menu button {
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #17171e0b;
+    border-radius: 10px;
+    text-align: left; /* Keep text aligned to the left */
+    border: none; /* Ensure no border is present */
+    width: 100%; /* Make it full width of the dropdown */
+    display: block; /* Ensure proper block-level rendering */
+    margin:10px; /* Reset any margins */
+    right:10px;
+
+}
+
+.dropdown-menu button:hover {
+    background-color: #fd0606;
+}
+
+
+/* Auth buttons positioning */
+.auth-buttons {
+    position: absolute;
+    top: 27px;
+    right: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.auth-buttons a {
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    background-color: #17171e0b;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out;
+}
+
+.auth-buttons a:hover {
+    background-color: rgb(89, 63, 219);
+}
+
+
+/* Title */
+h1 {
+    font-size: 3vw;
+    margin-top: 25px;
+}
+
+/* Introduction Text */
+.intro {
+    font-size: 1.6vw;
+    margin-top: 20px;
+}
+
+/* Center Image */
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 20px auto 0;
+}
+
+/* Form Container */
+.upload form {
+    background: var(--main-bg-color);
+    padding: 20px;
+    width: 90%;
+    max-width: 350px;
+    border-radius: 10px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+/* Hide Default File Input */
+.upload form input[type="file"] {
+    display: none;
+}
+
+/* Custom Button */
+.custom-file-upload {
+    background: var(--main-bg-color);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 2px solid var(--accent-color);
+    cursor: pointer;
+    display: inline-block;
+    transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+    box-shadow: 0 2px 5px var(--box-shadow-color);
+}
+
+/* Hover Effect */
+.custom-file-upload:hover {
+    background: rgba(57, 57, 57, 0.289);
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px var(--box-shadow-color);
+}
+
+/* Click Effect */
+.custom-file-upload:active {
+    transform: scale(0.97);
+    box-shadow: 0 1px 4px var(--box-shadow-color);
+}
+
+/* File Name Display */
+#file-name {
+    font-size: 14px;
+    color: #77777780;
+    font-weight: 500;
+    margin-bottom: 8px; /* Adds space between the text and browse button */
+}
+
+/* Upload Button Animation */
+@keyframes rainbowGlow {
+    66% { border-color:  rgb(89, 63, 219); box-shadow: 0 0 10px  rgb(89, 63, 219); }
+}
+
+#upload_button {
+    padding: 10px;
+    border-radius: 12px;
+    background-color:  #17171e;
+    font-size: 15px;
+    margin-top: 15px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
+    animation: rainbowGlow 3s infinite linear;
+}
+
+/* Hover Effect */
+#upload_button:hover {
+    transform: scale(1.1);
+}
+
+/* Click Effect */
+#upload_button:active {
+    transform: scale(0.95);
+}
+
+/* How It Works Section - Full Width */
+#how-it-works {
+    margin: 50px auto; /* Remove left/right margin */
+    padding: 50px 5%; /* Add padding to avoid text touching edges */
+    background-color: #1c1c1c;
+    border-radius: 10px;
+    height:52vw;
+    width: 100vw; /* Make it span full width */
+    max-width: 100%; /* Ensure it doesn’t exceed screen width */
+}
+
+#remove {
+    font-size: 2.5rem;
+    margin-top: 20px;
+    color: #ff9800;
+    text-align: center;
+    padding :30px;
+}
+
+#p1 {
+    font-size:20px;
+    margin-top: 10px;
+}
+
+/* Make steps wider and center them */
+.step {
+    background-color: #222;
+    padding: 20px;
+    margin: 20px auto;
+    border-left: 5px solid #ff9800;
+    border-radius: 5px;
+    width: 80%; /* Make it wider but not full width */
+    max-width: 900px; /* Prevent excessive stretching on large screens */
+}
+
+/* Adjust fonts for readability */
+.step h3 {
+    font-size: 1.5rem;
+    color: #ff9800;
+}
+
+.step p {
+    font-size: 1.1rem;
+    color: #ddd;
+    margin-top: 8px;
+}
+
+/* Processing Animation */
+.processing {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 18px;
+    z-index: 1000;
+}
+
+/* Spinner Animation */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Sidebar Styles */
+.sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: -250px; /* Initially hidden */
+    background-color: rgb(89, 63, 219);
+    padding-top: 30px;
+    transition: left 0.3s ease-in-out;
+    z-index: 1000;
+}
+
+.logo {
+    position: absolute;
+    top: 5px;  /* Align with sidebar button */
+    right: 628px; /* Push it right of the sidebar */
+    height: 70px; /* Adjust logo size */
+}
+
+.logo img {
+    height: 100px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 9px;
+}
+
+
+/* Sidebar Links */
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 15px;
+    text-decoration: none;
+    font-size: 18px;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #17171e;
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 7px;
+    right: 15px;
+    background: none;
+    color: white;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+}
+.close-btn:hover{
+    background-color: #17171e;
+}
+
+/* Open Sidebar Button */
+.open-btn {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    background-color:#17171e;
+    color: white;
+    font-size: 30px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.open-btn:hover {
+    background-color: #444;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    .intro {
+        font-size: 18px;
+    }
+
+    .custom-file-upload {
+        font-size: 12px;
+        padding: 10px 15px;
+    }
+
+    #how-it-works h2 {
+        font-size: 1.8rem;
+    }
+
+    #how-it-works p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 20px;
+    }
+
+    .intro {
+        font-size: 16px;
+    }
+
+    .upload form {
+        width: 95%;
+    }
+
+    .custom-file-upload {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}

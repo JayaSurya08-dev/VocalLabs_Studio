@@ -1,0 +1,97 @@
+/* General Styles */
+body {
+    background-color: #17171e; /* Dark background */
+    color: rgba(255, 255, 255, 0.9); /* Light text color */
+    font-family: Arial, sans-serif; /* Modern sans-serif font */
+    margin: 0;
+    padding: 0;
+    text-align: center; /* Center text horizontally */
+}
+
+/* Page Title */
+h1 {
+    font-size: 2.5rem; /* Large font */
+    margin: 20px 0; /* Spacing */
+    color: rgba(255, 255, 255, 0.95); /* Bright text */
+}
+
+/* Download List Styles */
+ul {
+    list-style-type: none; /* No bullets */
+    padding: 0;
+    margin: 20px auto;
+    max-width: 500px;
+}
+
+li {
+    margin: 15px 0;
+}
+
+/* Download Buttons */
+a {
+    display: inline-block;
+    background-color: #5a5af7; /* Primary button color */
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 10px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+a:hover {
+    background-color: #4343cc; /* Darker on hover */
+    transform: scale(1.05);
+}
+
+a:active {
+    transform: scale(0.95);
+}
+
+/* Upload Another File Button */
+.upload-another-btn {
+    display: inline-block;
+    background-color: #f75a5a; /* Red button for contrast */
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 10px 20px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.upload-another-btn:hover {
+    background-color: #cc4343; /* Darker red on hover */
+    transform: scale(1.05);
+}
+
+.upload-another-btn:active {
+    transform: scale(0.95);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    a, .upload-another-btn {
+        font-size: 1rem;
+        padding: 8px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    a, .upload-another-btn {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+    }
+}

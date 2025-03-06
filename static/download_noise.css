@@ -1,0 +1,111 @@
+/* Dark Mode Styles */
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Headings */
+h1, h2, p {
+    color: #ffffff;
+    margin-bottom: 15px;
+}
+
+/* Buttons */
+button, a#downloadBtn, .custom-file-upload, #upload_button {
+    background: var(--accent-color, #673ab7); /* Default to purple */
+    color: white;
+    font-size: 16px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 15px;
+    transition: transform 0.2s ease, background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 6px rgba(255, 255, 255, 0.2);
+}
+
+/* Hover Effects */
+button:hover, a#downloadBtn:hover, .custom-file-upload:hover, #upload_button:hover {
+    background: rgb(69, 40, 200);
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Click Effects */
+button:active, a#downloadBtn:active, .custom-file-upload:active, #upload_button:active {
+    transform: scale(0.97);
+    box-shadow: 0 1px 4px rgba(255, 255, 255, 0.2);
+}
+
+/* Sliders */
+.slider {
+    width: 60%;
+    margin: 20px auto;
+    accent-color: #1e88e5;
+    appearance: none;
+    height: 8px;
+    border-radius: 5px;
+    background: #333;
+    outline: none;
+}
+
+/* Slider Thumb */
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #1e88e5;
+    cursor: pointer;
+}
+
+/* Waveform Container */
+#waveform {
+    background: #222;
+    border-radius: 8px;
+    width: 50vw; /* Half of the viewport width */
+    margin: 20px auto; /* Centers it */
+    padding: 15px;
+    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Upload Container */
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* File Upload Button */
+.custom-file-upload {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    background: var(--accent-color, #673ab7);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    margin: 15px;
+    transition: background 0.3s, transform 0.2s;
+}
+
+/* Container for better layout */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+/* Enhancing Form Elements */
+input[type="file"] {
+    display: none;
+}
